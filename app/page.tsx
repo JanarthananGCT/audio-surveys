@@ -43,6 +43,7 @@ export default function Home() {
   const handleStopRecording = (transcript: string) => {
     setIsRecording(false)
     setAnswer(transcript || defaultAnswers[currentQuestionIndex])
+    setScore(score + 1)
     setShowAnswer(true)
     toast({
       title: "Recording stopped",
