@@ -104,16 +104,19 @@ export default function Home() {
                     onStartRecording={handleStartRecording}
                     onStopRecording={handleStopRecording}
                   />
-                  <Button
-                    onClick={handleSkip}
-                    variant="outline"
-                    className="bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105"
-                  >
-                    Skip
-                  </Button>
+
                 </div>
               )}
             </motion.div>
+            <div className="absolute bottom-10 left-10">
+              <Button
+                onClick={handleSkip}
+                variant="link"
+                className=" text-white border-white/20 hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105"
+              >
+                Skip
+              </Button>
+            </div>
           </AnimatePresence>
         </Card>
       </motion.div>
