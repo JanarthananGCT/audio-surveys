@@ -14,14 +14,20 @@ import { Button } from "@/components/ui/button"
 import AnswerDisplay from "@/components/AnswerDisplay"
 
 const questions = [
-  "What is the capital of France?",
-  "Who painted the Mona Lisa?",
-  "What is the largest planet in our solar system?",
-  "What year did World War II end?",
-  "What is the chemical symbol for gold?",
+  "Why don't programmers like nature?",
+  "What did the JavaScript function say after dinner?",
+  "Why do Java developers wear glasses?",
+  "What's a computer's favorite snack?",
+  "How do you comfort a JavaScript bug?",
 ]
 
-const defaultAnswers = ["Paris", "Leonardo da Vinci", "Jupiter", "1945", "Au"]
+const defaultAnswers = [
+  "It has too many bugs!",
+  "That was a callback!",
+  "Because they don't C#!",
+  "Microchips!",
+  "You console.log it!"
+]
 
 export default function Home() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
