@@ -27,9 +27,19 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question }) => {
   }, [question])
 
   const speak = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text)
-    window.speechSynthesis.speak(utterance)
-  }
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Find a female voice (example: Google voices or default ones)
+    const femaleVoice = voices.find(voice => voice.name.includes("Female") || voice.name.includes("Google UK English Female"));
+  
+    // Set the voice if found
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+  
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <motion.div
