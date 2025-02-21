@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
@@ -8,32 +8,20 @@ import { Toaster } from "@/components/ui/toaster"
 import BackgroundAnimation from "@/components/BackgroundAnimation"
 import QuestionDisplay from "@/components/QuestionDisplay"
 import VoiceInput from "@/components/VoiceInput"
-import AnswerDisplay from "@/components/AnswerDisplay"
 import ProgressBar from "@/components/ProgressBar"
 import ResultsPage from "@/components/ResultsPage"
+import { Button } from "@/components/ui/button"
+import AnswerDisplay from "@/components/AnswerDisplay"
 
 const questions = [
-  {
-    question: "What is the capital of France?",
-    correctAnswer: "Paris"
-  },
-  {
-    question: "Who painted the Mona Lisa?",
-    correctAnswer: "Leonardo da Vinci"
-  },
-  {
-    question: "What is the largest planet in our solar system?",
-    correctAnswer: "Jupiter"
-  },
-  {
-    question: "What year did World War II end?",
-    correctAnswer: "1945"
-  },
-  {
-    question: "What is the chemical symbol for gold?",
-    correctAnswer: "Au"
-  },
+  "What is the capital of France?",
+  "Who painted the Mona Lisa?",
+  "What is the largest planet in our solar system?",
+  "What year did World War II end?",
+  "What is the chemical symbol for gold?",
 ]
+
+const defaultAnswers = ["Paris", "Leonardo da Vinci", "Jupiter", "1945", "Au"]
 
 export default function Home() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -41,7 +29,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false)
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
+  const [showAnswer, setShowAnswer] = useState(false)
   const { toast } = useToast()
 
   const handleStartRecording = () => {
@@ -54,36 +42,35 @@ export default function Home() {
 
   const handleStopRecording = (transcript: string) => {
     setIsRecording(false)
-    setAnswer(transcript)
+    setAnswer(transcript || defaultAnswers[currentQuestionIndex])
+    setShowAnswer(true)
     toast({
       title: "Recording stopped",
       description: "Your answer has been recorded.",
     })
-
-    // Enhanced scoring logic
-    const isAnswerCorrect = transcript
-      .toLowerCase()
-      .includes(questions[currentQuestionIndex].correctAnswer.toLowerCase())
-    
-    setIsCorrect(isAnswerCorrect)
-    
-    if (isAnswerCorrect) {
-      setScore((prevScore) => prevScore + 1)
-    }
-
-    // Move to next question or show results
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((prevIndex) => prevIndex + 1)
-        setAnswer(null)
-        setIsCorrect(null)
-      } else {
-        setShowResults(true)
-      }
-    }, 3000) // Increased delay to show animation
   }
 
-  if (showResults || !questions[currentQuestionIndex]) {
+  useEffect(() => {
+    if (showAnswer) {
+      const timer = setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          setCurrentQuestionIndex((prevIndex) => prevIndex + 1)
+          setAnswer(null)
+          setShowAnswer(false)
+        } else {
+          setShowResults(true)
+        }
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showAnswer, currentQuestionIndex])
+
+  const handleSkip = () => {
+    setAnswer(defaultAnswers[currentQuestionIndex])
+    setShowAnswer(true)
+  }
+
+  if (showResults) {
     return <ResultsPage score={score} totalQuestions={questions.length} />
   }
 
@@ -105,55 +92,26 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
-              className="w-full h-full flex flex-col items-center justify-center space-y-8"
+              className="w-full h-full flex flex-col items-center justify-center"
             >
-              {questions[currentQuestionIndex] && (
-                <>
-                  <QuestionDisplay question={questions[currentQuestionIndex].question} />
-                  {!answer && (
-                    <VoiceInput
-                      isRecording={isRecording}
-                      onStartRecording={handleStartRecording}
-                      onStopRecording={handleStopRecording}
-                    />
-                  )}
-                  {answer && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex flex-col items-center space-y-4"
-                    >
-                      <AnswerDisplay answer={answer} />
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="flex flex-col items-center space-y-2"
-                      >
-                        <motion.div
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            transition: { duration: 0.5 }
-                          }}
-                          className={`text-2xl font-bold ${
-                            isCorrect ? 'text-green-400' : 'text-red-400'
-                          }`}
-                        >
-                          {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7 }}
-                          className="text-gray-200 text-sm"
-                        >
-                          Correct answer: {questions[currentQuestionIndex].correctAnswer}
-                        </motion.div>
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </>
+              <QuestionDisplay question={questions[currentQuestionIndex]} />
+              {showAnswer ? (
+                <AnswerDisplay answer={answer || ""} />
+              ) : (
+                <div className="flex flex-col items-center space-y-4">
+                  <VoiceInput
+                    isRecording={isRecording}
+                    onStartRecording={handleStartRecording}
+                    onStopRecording={handleStopRecording}
+                  />
+                  <Button
+                    onClick={handleSkip}
+                    variant="outline"
+                    className="bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105"
+                  >
+                    Skip
+                  </Button>
+                </div>
               )}
             </motion.div>
           </AnimatePresence>

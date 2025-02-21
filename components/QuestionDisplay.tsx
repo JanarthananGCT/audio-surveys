@@ -38,18 +38,18 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question }) => {
       transition={{ duration: 0.5 }}
       className="text-3xl font-bold text-white mb-8 text-center"
     >
-    {console.log(displayedText)}
-  {[...question].map((char, index) => (
-  <motion.span
-    key={index}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.05 }}
-    className="inline-block"
-  >
-    {char === " " ? "\u00A0" : char} 
-  </motion.span>
-))}
+      {console.log(displayedText)}
+      {[...question].map((char, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.05 }}
+          className="inline-block"
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
     </motion.div>
   )
 }

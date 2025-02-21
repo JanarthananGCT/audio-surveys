@@ -1,7 +1,10 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState } from "react"
-import { Button } from "./ui/button"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
 import { Mic, MicOff } from "lucide-react"
 
 interface VoiceInputProps {
@@ -10,73 +13,96 @@ interface VoiceInputProps {
   onStopRecording: (transcript: string) => void
 }
 
-export default function VoiceInput({
-  isRecording,
-  onStartRecording,
-  onStopRecording,
-}: VoiceInputProps) {
+// Define types for Web Speech API since TypeScript doesn't include them by default
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult
+  length: number
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative
+  isFinal: boolean
+  length: number
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string
+  confidence: number
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition
+    webkitSpeechRecognition: new () => SpeechRecognition
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  onresult: (event: SpeechRecognitionEvent) => void
+  start: () => void
+  stop: () => void
+}
+
+const VoiceInput: React.FC<VoiceInputProps> = ({ isRecording, onStartRecording, onStopRecording }) => {
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition()
-        recognition.continuous = false
-        recognition.interimResults = false
-        recognition.lang = 'en-US'
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = "en-US"
 
-        recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript
-          console.log(transcript)
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("")
+
+        if (event.results[0].isFinal) {
           onStopRecording(transcript)
         }
-
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error)
-          onStopRecording("")
-        }
-
-        setRecognition(recognition)
       }
+
+      setRecognition(recognition)
     }
   }, [onStopRecording])
 
-  const handleStartRecording = () => {
-    if (recognition) {
-      recognition.start()
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      recognition?.stop()
+      onStopRecording("")
+    } else {
+      recognition?.start()
       onStartRecording()
     }
   }
 
-  const handleStopRecording = () => {
-    if (recognition) {
-      recognition.stop()
-    }
-  }
-
   return (
-    <div className="flex flex-col items-center space-y-4">
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+    >
       <Button
-        onClick={isRecording ? handleStopRecording : handleStartRecording}
-        variant="outline"
-        size="lg"
-        className={`rounded-full p-8 transition-all duration-300 ${
-          isRecording 
-            ? 'bg-red-500 hover:bg-red-600 text-white' 
-            : 'bg-blue-500 hover:bg-blue-600 text-white'
+        onClick={handleToggleRecording}
+        className={`w-16 h-16 rounded-full transition-all duration-200 ease-in-out transform hover:scale-110 ${
+          isRecording
+            ? "bg-red-500 hover:bg-red-600"
+            : "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
         }`}
       >
-        {isRecording ? (
-          <MicOff className="w-8 h-8 animate-pulse" />
-        ) : (
-          <Mic className="w-8 h-8" />
-        )}
+        {isRecording ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
       </Button>
-      <p className="text-gray-200 text-sm">
-        {isRecording ? "Click to stop recording" : "Click to start recording"}
-      </p>
-    </div>
+    </motion.div>
   )
 }
 
+export default VoiceInput

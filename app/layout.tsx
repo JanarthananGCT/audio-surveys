@@ -1,9 +1,11 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type React from "react"
+import type { Metadata } from "next"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: 'Talk with Me 😍',
-  description: 'Talk with Me 😍',
+  title: "v0 App",
+  description: "Created with v0",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -17,3 +19,7 @@ export default function RootLayout({
     </html>
   )
 }
+
+
+
+import './globals.css'
