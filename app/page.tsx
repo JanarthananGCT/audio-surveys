@@ -82,15 +82,15 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 relative overflow-hidden bg-gradient-to-br from-purple-700 to-blue-900">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-16 lg:p-24 relative overflow-hidden bg-gradient-to-br from-purple-700 to-blue-900">
       <BackgroundAnimation />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="z-10"
+        className="z-10 w-full max-w-[95%] md:max-w-[90%] lg:max-w-[900px]"
       >
-        <Card className="w-[900px] h-[500px] flex flex-col items-center justify-center p-6 bg-black/30 backdrop-blur-lg border-white/10 rounded-3xl shadow-2xl">
+        <Card className="w-full min-h-[400px] md:h-[500px] flex flex-col items-center justify-center p-4 sm:p-6 bg-black/30 backdrop-blur-lg border-white/10 rounded-3xl shadow-2xl">
           <ProgressBar current={currentQuestionIndex + 1} total={questions.length} />
           <AnimatePresence mode="wait">
             <motion.div
@@ -99,27 +99,26 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
-              className="w-full h-full flex flex-col items-center justify-center"
+              className="w-full h-full flex flex-col items-center justify-center px-2 sm:px-4 md:px-6"
             >
               <QuestionDisplay question={questions[currentQuestionIndex]} />
               {showAnswer ? (
                 <AnswerDisplay answer={answer || ""} />
               ) : (
-                <div className="flex flex-col items-center space-y-4">
+                <div className="flex flex-col items-center space-y-4 w-full">
                   <VoiceInput
                     isRecording={isRecording}
                     onStartRecording={handleStartRecording}
                     onStopRecording={handleStopRecording}
                   />
-
                 </div>
               )}
             </motion.div>
-            <div className="absolute bottom-10 left-10">
+            <div className="absolute bottom-4 sm:bottom-6 md:bottom-10 left-4 sm:left-6 md:left-10">
               <Button
                 onClick={handleSkip}
                 variant="link"
-                className=" text-white border-white/20 hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105"
+                className="text-white border-white/20 hover:bg-white/20 transition-all duration-200 ease-in-out transform hover:scale-105"
               >
                 Skip
               </Button>

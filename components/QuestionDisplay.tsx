@@ -38,7 +38,6 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({ question }) => {
       transition={{ duration: 0.5 }}
       className="text-3xl font-bold text-white mb-8 text-center"
     >
-      {console.log(displayedText)}
       {[...question].map((char, index) => (
         <motion.span
           key={index}
